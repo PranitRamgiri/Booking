@@ -4,14 +4,14 @@ import org.springframework.http.HttpStatus;
 
 public class BookingException extends RuntimeException{
 
-    private HttpStatus status;
+    private HttpStatus httpStatus;
 
     public BookingException(String message, HttpStatus status) {
         super(message);
-        this.status = status;
+        this.httpStatus = status;
     }
-    public HttpStatus getStatus() {
-        return status;
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 
 }

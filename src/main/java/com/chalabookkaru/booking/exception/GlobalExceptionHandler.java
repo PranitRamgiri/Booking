@@ -9,23 +9,38 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler{
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(BookingException.class)
     public ResponseEntity<ErrorResponse> handleUser(BookingException ex) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setTimestamp(LocalDateTime.now());
-        errorResponse.setStatus(ex.getStatus().value());
-        errorResponse.setMessage(ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(ex.getMessage(), ex.getHttpStatus());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<String>> handleMethodErrors(MethodArgumentNotValidException ex) {
-        List<String> messages = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-        return ResponseEntity.badRequest().body(messages);
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        return buildErrorResponse(message, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        return buildErrorResponse(
+                "Internal Server Error in BookingMS",
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(String message, HttpStatus status) {
+        return new ResponseEntity<>(
+                new ErrorResponse(LocalDateTime.now(), status.value(), message),
+                status
+        );
     }
 }
