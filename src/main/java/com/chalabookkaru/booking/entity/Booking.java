@@ -6,16 +6,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "booking")
-public class BookingEntity {
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long userId;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long showId;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long movieId;
     @Column(nullable = false)
     private int seatCount;
